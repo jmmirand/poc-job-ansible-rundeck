@@ -1,0 +1,108 @@
+nexus_jobs:
+
+### 
+#
+#  Nexus Proxy Pre
+###
+
+# cloudcenter.corp/europe/almpre/nexus
+  - group: "cloudcenter.corp/europe/almpre/nexus"
+    name : "nexus-check-all-repos"
+    longname: "Nexus - Check ALL Proxy Repos"
+    inventory: "inventories/almmc"
+    launchhosts: "nexus_proxy_almpre"
+    nexus_repo_name_option : false
+    test_script_ignore_errors: false
+    template: "nexus-template-alm.yaml"
+
+  - group: "cloudcenter.corp/europe/almpre/nexus"
+    name : "nexus-check-specific-repo"
+    longname: "Nexus - Check SPECIFIC Proxy Repo"
+    inventory: "inventories/almmc"
+    launchhosts: "nexus_proxy_almpre"
+    nexus_repo_name_option : true
+    test_script_ignore_errors: false
+    template: "nexus-template-alm.yaml"
+
+  - group: "cloudcenter.corp/europe/almpre/nexus"
+    name : "nexus-config-all-repos"
+    longname: "Nexus - Config-Create ALL Proxy Repos"
+    inventory: "inventories/almmc"
+    launchhosts: "nexus_proxy_almpre"
+    nexus_repo_name_option : false
+    test_script_ignore_errors: false
+    template: "nexus-template-alm.yaml"
+
+  - group: "cloudcenter.corp/europe/almpre/nexus"
+    name : "nexus-config-specific-repo"
+    longname: "Nexus - Config-Create SPECIFIC Proxy Repo"
+    inventory: "inventories/almmc"
+    launchhosts: "nexus_proxy_almpre"
+    nexus_repo_name_option : true
+    test_script_ignore_errors: true
+    template: "nexus-template-alm1.yaml"
+
+####
+#
+# Nexus Proxy PRO
+#    cloudcenter.corp/europe/alm/nexus/ccccn000058
+#    cloudcenter.corp/europe/alm/nexus/ccccn000059
+#
+####
+
+# cloudcenter.corp/europe/alm/nexus/ccccn000058
+  - longname: "Nexus - Config-Create SPECIFIC Proxy Repo"
+    group: "cloudcenter.corp/europe/alm/nexus/ccccn000058"
+    name : "nexus-config-specific-repo"
+    inventory: "inventories/almmc"
+    launchhosts: "ccccn000058.cloudcenter.corp"
+    nexus_repo_name_option : true
+    test_script_ignore_errors: false
+    template: "nexus-template-alm.yaml"
+
+  - group: "cloudcenter.corp/europe/alm/nexus/ccccn000058"
+    name : "nexus-check-all-repos"
+    longname: "Nexus - Check ALL Proxy Repos"
+    inventory: "inventories/almmc"
+    launchhosts: "ccccn000058.cloudcenter.corp"
+    nexus_repo_name_option : false
+    test_script_ignore_errors: false
+    template: "nexus-template-alm.yaml"
+
+  - longname: "Nexus - Check SPECIFIC Proxy Repo"
+    group: "cloudcenter.corp/europe/alm/nexus/ccccn000058"
+    name : "nexus-check-specific-repo"
+    inventory: "inventories/almmc"
+    launchhosts: "ccccn000058.cloudcenter.corp"
+    nexus_repo_name_option : true
+    test_script_ignore_errors: false
+    template: "nexus-template-alm.yaml"
+
+# cloudcenter.corp/europe/alm/nexus/ccccn000059
+
+  - longname: "Nexus - Config-Create SPECIFIC Proxy Repo"
+    group: "cloudcenter.corp/europe/alm/nexus/ccccn000059"
+    name : "nexus-config-specific-repo"
+    inventory: "inventories/almmc"
+    launchhosts: "ccccn000059.cloudcenter.corp"
+    nexus_repo_name_option : true
+    test_script_ignore_errors: true
+    template: "nexus-template-alm.yaml"
+
+  - longname: "Nexus - Check SPECIFIC Proxy Repo"
+    group: "cloudcenter.corp/europe/alm/nexus/ccccn000059"
+    name : "nexus-check-specific-repo"
+    inventory: "inventories/almmc"
+    launchhosts: "ccccn000059.cloudcenter.corp"
+    nexus_repo_name_option : true
+    test_script_ignore_errors: false
+    template: "nexus-template-alm.yaml"
+
+  - group: "cloudcenter.corp/europe/alm/nexus/ccccn000059"
+    name : "nexus-check-all-repos"
+    longname: "Nexus - Check ALL Proxy Repos"
+    inventory: "inventories/almmc"
+    launchhosts: "ccccn000059.cloudcenter.corp"
+    nexus_repo_name_option : false
+    test_script_ignore_errors: false
+    template: "nexus-template-alm.yaml"

@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+  vars:
+   git_url: 'git@github.com:jmmirand/test-config-job-rundeck.git'
+   git_key: "{{ lookup('file','/Users/jmmirand/.ssh/jmmirand_rsa') }}"
+  tasks:
+  - name: git pull
+    include_role:
+      name: ansible-git
+      tasks_from: pull
+
+
+  - name: Config Rundeck Jobs
+    include_role:
+      name: config-rundeck-jobs
+
+  - name: git push
+    include_role:
+      name: ansible-git
+      tasks_from: push

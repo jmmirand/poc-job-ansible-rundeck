@@ -1,0 +1,493 @@
+#####
+#   TEMPLATES DE PASOS DE WORKFLOWS PARA LA EJECUCION DE NEXUS
+#      * Basicos para ejecutar todos los JOBS
+#      * Espefificos para filtrar por un repo en particula.
+#####
+
+nexus_porxy_almmc_basic_workflows:
+  - config:
+      gitBaseDirectory: /opt/rundeck/${job.id}/sources
+      gitBranch: ${option.source-branch}
+      gitPasswordPath: keys/gitpass
+      gitUrl: "{{ github_server }}/ccc-almmulticloud-community/ansible-nexus-multicloud.git"
+      gitUseProjectBasedSubdirectory: 'false'
+      strictHostKeyChecking: 'yes'
+    nodeStep: false
+    type: git-clone-step
+  - config:
+      gitBaseDirectory: /opt/rundeck/${job.id}/inventories
+      gitBranch: ${option.inventories-branch}
+      gitPasswordPath: keys/gitpass
+      gitUrl: "{{ github_server }}/ccc-ansible-multicloud/ansible-nexus-almmc-inventory.git"
+      gitUseProjectBasedSubdirectory: 'false'
+      strictHostKeyChecking: 'yes'
+    nodeStep: false
+    type: git-clone-step
+  - config:
+      ansible-base-dir-path: /opt/rundeck/${job.id}/sources
+      ansible-become: 'false'
+      ansible-disable-limit: 'false'
+      ansible-extra-param: -i /opt/rundeck/${job.id}/${option.inventory-path} -l ${option.launchHost}
+      ansible-extra-vars:
+        launchHosts: ${option.launchHost}
+        nexus3_ansible_inventory_tag: ${option.inventories-branch}
+        nexus3_ansible_source_tag: ${option.source-branch}
+        test_script_ignore_errors: ${option.ignore_errors}
+      ansible-playbook: ${option.playbook}
+      ansible-ssh-auth-type: privateKey
+      ansible-ssh-key-storage-path: keys/ssh/almrundeck-private-key
+      ansible-ssh-use-agent: 'false'
+      ansible-ssh-user: almrundeck
+      ansible-vault-storage-path: keys/vault/ansible-nexus-almmc-inventory
+    nodeStep: false
+    type: com.batix.rundeck.plugins.AnsiblePlaybookWorkflowStep
+
+
+nexus_porxy_almmc_repo_especifico_workflows:
+  - config:
+      gitBaseDirectory: /opt/rundeck/${job.id}/sources
+      gitBranch: ${option.source-branch}
+      gitPasswordPath: keys/gitpass
+      gitUrl: "{{ github_server }}/ccc-almmulticloud-community/ansible-nexus-multicloud.git"
+      gitUseProjectBasedSubdirectory: 'false'
+      strictHostKeyChecking: 'yes'
+    nodeStep: false
+    type: git-clone-step
+  - config:
+      gitBaseDirectory: /opt/rundeck/${job.id}/inventories
+      gitBranch: ${option.inventories-branch}
+      gitPasswordPath: keys/gitpass
+      gitUrl: "{{ github_server }}/ccc-ansible-multicloud/ansible-nexus-almmc-inventory.git"
+      gitUseProjectBasedSubdirectory: 'false'
+      strictHostKeyChecking: 'yes'
+    nodeStep: false
+    type: git-clone-step
+  - config:
+      ansible-base-dir-path: /opt/rundeck/${job.id}/sources
+      ansible-become: 'false'
+      ansible-disable-limit: 'false'
+      ansible-extra-param: -i /opt/rundeck/${job.id}/${option.inventory-path} -l ${option.launchHost}
+      ansible-extra-vars:
+        launchHosts: ${option.launchHost}
+        nexus3_ansible_inventory_tag: ${option.inventories-branch}
+        nexus3_ansible_source_tag: ${option.source-branch}
+        test_script_ignore_errors: false
+        limit_repository: ${option.nexus-repo-name}
+      ansible-playbook: ${option.playbook}
+      ansible-ssh-auth-type: privateKey
+      ansible-ssh-key-storage-path: keys/ssh/almrundeck-private-key
+      ansible-ssh-use-agent: 'false'
+      ansible-ssh-user: almrundeck
+      ansible-vault-storage-path: keys/vault/ansible-nexus-almmc-inventory
+    nodeStep: false
+    type: com.batix.rundeck.plugins.AnsiblePlaybookWorkflowStep
+
+
+
+nexus_proxy_almmc:
+  - name: Nexus - Check ALL Proxy Repos PRE (ccccn000517)
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/almpre/nexus
+    options:
+      - name: inventories-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-ansible-multicloud/ansible-nexus-almmc-inventory
+        required: true
+      - name: source-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-almmulticloud-community/ansible-nexus-multicloud
+        required: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: nexus_proxy_almpre
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-check-repos.yml
+        hidden: true
+        required: true
+      - name: ignore_errors
+        value: 'True'
+        values:
+         - True
+         - False
+        #hidden: true
+        required: true
+    workflow: "{{ nexus_porxy_almmc_basic_workflows }}"
+
+  - name: Nexus - Config-Create ALL Proxy Repos PRE (ccccn000517)
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/almpre/nexus
+    options:
+      - name: inventories-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-ansible-multicloud/ansible-nexus-almmc-inventory
+        required: true
+      - name: source-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-almmulticloud-community/ansible-nexus-multicloud
+        required: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: nexus_proxy_almpre
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-config-repos.yml
+        hidden: true
+        required: true
+      - name: ignore_errors
+        value: '{{ test_script_ignore_errors }}'
+        values:
+         - True
+         - False
+        #hidden: true
+        required: true
+    workflow: "{{ nexus_porxy_almmc_basic_workflows }}"
+
+
+  - name: Nexus - Check SPECIFIC Proxy REPO PRE (ccccn000517)
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/almpre/nexus
+    options:
+      - name: inventories-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-ansible-multicloud/ansible-nexus-almmc-inventory
+        required: true
+      - name: source-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-almmulticloud-community/ansible-nexus-multicloud
+        required: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: nexus_proxy_almpre
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-check-repos.yml
+        hidden: true
+        required: true
+      - name: nexus-repo-name
+        label: Nombre Repo que queremos tratar
+        hidden: false
+        required: true
+    workflow: "{{ nexus_porxy_almmc_repo_especifico_workflows }}"
+
+
+  - name: Nexus - Config-Create SPECIFIC Proxy REPO PRE (ccccn000517)
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/almpre/nexus
+    options:
+      - name: inventories-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-ansible-multicloud/ansible-nexus-almmc-inventory
+        required: true
+      - name: source-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-almmulticloud-community/ansible-nexus-multicloud
+        required: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: nexus_proxy_almpre
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-config-repos.yml
+        hidden: true
+        required: true
+      - name: nexus-repo-name
+        label: Nombre Repo que queremos tratar
+        hidden: false
+        required: true
+    workflow: "{{ nexus_porxy_almmc_repo_especifico_workflows }}"
+
+
+##
+#   JOBS ESPEDIFICOS PARA NEXUS PROXY PRO  NEXUS.ALM.EUROPE.CLOUCENTER.CORP
+##
+
+  - name: Nexus - Check SPECIFIC Proxy REPO PROD (ccccn000058)
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/alm/nexus/ccccn000058
+    options:
+      - name: inventories-branch
+        value: master
+        required: true
+      - name: source-branch
+        value: master
+        required: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: ccccn000058.cloudcenter.corp
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-check-repos.yml
+        hidden: true
+        required: true
+      - name: nexus-repo-name
+        label: Nombre Repo que queremos tratar
+        hidden: false
+        required: true
+    workflow: "{{ nexus_porxy_almmc_repo_especifico_workflows }}"
+
+
+  - name: Nexus - Config-Create SPECIFIC Proxy Repos PROD (ccccn000058)
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/alm/nexus/ccccn000058
+    options:
+      - name: inventories-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-ansible-multicloud/ansible-nexus-almmc-inventory
+        required: true
+      - name: source-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-almmulticloud-community/ansible-nexus-multicloud
+        required: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: ccccn000058.cloudcenter.corp
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-configs-repos.yml
+        hidden: true
+        required: true
+      - name: nexus-repo-name
+        label: Nombre Repo que queremos tratar
+        hidden: false
+        required: true
+    workflow: "{{ nexus_porxy_almmc_repo_especifico_workflows }}"
+
+
+  - name: Nexus - Check SPECIFIC Proxy REPO PROD ( ccccn000059 )
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/alm/nexus/ccccn000059
+    options:
+      - name: inventories-branch
+        value: master
+        required: true
+        hidden: true
+      - name: source-branch
+        value: master
+        required: true
+        hidden: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: ccccn000059.cloudcenter.corp
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-check-repos.yml
+        hidden: true
+        required: true
+      - name: nexus-repo-name
+        label: Nombre Repo que queremos tratar
+        hidden: false
+        required: true
+    workflow: "{{ nexus_porxy_almmc_repo_especifico_workflows }}"
+
+
+  - name: Nexus - Config-Create SPECIFIC Proxy Repos PROD (ccccn000059)
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/alm/nexus/ccccn000059
+    options:
+      - name: inventories-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-ansible-multicloud/ansible-nexus-almmc-inventory
+        required: true
+      - name: source-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-almmulticloud-community/ansible-nexus-multicloud
+        required: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: ccccn000059.cloudcenter.corp
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-configs-repos.yml
+        hidden: true
+        required: true
+      - name: nexus-repo-name
+        label: Nombre Repo que queremos tratar
+        hidden: false
+        required: true
+    workflow: {{ nexus_porxy_almmc_repo_especifico_workflows }}
+
+
+
+
+##
+#   JOBS ESPEDIFICOS PARA NEXUS MASTERS PRE  NEXUSMASTER.ALMPRE.EUROPE.CLOUCENTER.CORP
+##
+nexus_master_almmc:
+  - name: NexusMaster - Check ALL Repos PRE (nexus_hosted_almpre)
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/almpre/nexusmaster
+    options:
+      - name: inventories-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-ansible-multicloud/ansible-nexus-almmc-inventory
+        required: true
+      - name: source-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-almmulticloud-community/ansible-nexus-multicloud
+        required: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc_master
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: nexus_hosted_almpre
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-check-repos.yml
+        hidden: true
+        required: true
+      - name: ignore_errors
+        value: 'True'
+        values:
+         - True
+         - False
+        #hidden: true
+        required: true
+    workflow: "{{ nexus_porxy_almmc_basic_workflows }}"
+
+  - name: NexusMaster - Config-Create ALL Proxy PRE (nexus_hosted_almpre)
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/almpre/nexusmaster
+    options:
+      - name: inventories-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-ansible-multicloud/ansible-nexus-almmc-inventory
+        required: true
+      - name: source-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-almmulticloud-community/ansible-nexus-multicloud
+        required: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc_master
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: nexus_hosted_almpre
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-config-repos.yml
+        hidden: true
+        required: true
+      - name: ignore_errors
+        value: 'False'
+        values:
+         - True
+         - False
+        #hidden: true
+        required: true
+    workflow: "{{ nexus_porxy_almmc_basic_workflows }}"
+
+
+
+
+  - name: NexusMaster - Check SPECIFIC REPO PRE (nexus_hosted_almpre)
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/almpre/nexusmaster
+    options:
+      - name: inventories-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-ansible-multicloud/ansible-nexus-almmc-inventory
+        required: true
+      - name: source-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-almmulticloud-community/ansible-nexus-multicloud
+        required: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc_master
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: nexus_hosted_almpre
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-check-repos.yml
+        hidden: true
+        required: true
+      - name: nexus-repo-name
+        label: Nombre Repo que queremos tratar
+        hidden: false
+        required: true
+    workflow: "{{ nexus_porxy_almmc_repo_especifico_workflows }}"
+
+
+  - name: NexusMaster - Config-Create SPECIFIC REPO PRE (nexus_hosted_almpre)
+    project: operations_multicloud
+    group: cloudcenter.corp/europe/almpre/nexusmaster
+    options:
+      - name: inventories-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-ansible-multicloud/ansible-nexus-almmc-inventory
+        required: true
+      - name: source-branch
+        valuesUrl: http://localhost:5001/github/branches-tags/ccc-almmulticloud-community/ansible-nexus-multicloud
+        required: true
+      - name: inventory-path
+        label: Inventario del proyecto Inventario
+        value: inventories/almmc_master
+        hidden: true
+        required: true
+      - name: launchHost
+        label: Grupo Ansible
+        value: nexus_hosted_almpre
+        hidden: true
+        required: true
+      - name: playbook
+        label: Ruta del Playbook
+        value: playbooks/nexus3-config-repos.yml
+        hidden: true
+        required: true
+      - name: nexus-repo-name
+        label: Nombre Repo que queremos tratar
+        hidden: false
+        required: true
+    workflow: "{{ nexus_porxy_almmc_repo_especifico_workflows }}"

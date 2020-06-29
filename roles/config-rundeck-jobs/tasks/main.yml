@@ -1,0 +1,7 @@
+---
+
+- name: Configure Jobs with templates
+  template:
+    src: "{{ item.template }}"
+    dest: "{{ role_path }}/../..{{ git_repo_path }}/{{ item.group | regex_replace('/', '.') }}.{{ item.name }}.yaml"
+  with_items: "{{ nexus_jobs }}"
